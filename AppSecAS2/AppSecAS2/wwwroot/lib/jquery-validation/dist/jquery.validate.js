@@ -684,7 +684,21 @@ $.extend( $.validator, {
 		},
 
 		clean: function( selector ) {
-			return $( selector )[ 0 ];
+
+			// Normalize selector to a DOM element without interpreting arbitrary strings as HTML.
+			// If a jQuery object is passed, extract its first element.
+			if ( selector && selector.jquery ) {
+				return selector[ 0 ];
+			}
+
+			// If a DOM element is passed, return it directly.
+			if ( selector && selector.nodeType === 1 ) {
+				return selector;
+			}
+
+			// For any other type (including strings), do not attempt to construct
+			// elements via jQuery to avoid interpreting untrusted input as HTML.
+			return undefined;
 		},
 
 		errors: function() {
@@ -1063,13 +1077,27 @@ $.extend( $.validator, {
 
 		validationTargetFor: function( element ) {
 
+			// Normalize jQuery object to a DOM element.
+			if ( element && element.jquery ) {
+				element = element[ 0 ];
+			}
+
 			// If radio/checkbox, validate first element in group instead
-			if ( this.checkable( element ) ) {
+			if ( element && this.checkable( element ) ) {
 				element = this.findByName( element.name );
 			}
 
-			// Always apply ignore filter
-			return $( element ).not( this.settings.ignore )[ 0 ];
+			// Normalize again in case findByName returned a jQuery object.
+			if ( element && element.jquery ) {
+				element = element[ 0 ];
+			}
+
+			// Always apply ignore filter, but only when we have a DOM element.
+			if ( element && element.nodeType === 1 ) {
+				return $( element ).not( this.settings.ignore )[ 0 ];
+			}
+
+			return undefined;
 		},
 
 		checkable: function( element ) {
