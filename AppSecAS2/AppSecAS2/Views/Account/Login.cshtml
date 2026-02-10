@@ -1,0 +1,177 @@
+@model BookwormsOnline.Models.LoginViewModel
+@inject Microsoft.Extensions.Options.IOptions<BookwormsOnline.Configuration.ReCaptchaSettings> ReCaptchaSettings
+
+@{
+    ViewData["Title"] = "Login - Bookworms Online";
+    var siteKey = ReCaptchaSettings.Value.SiteKey;
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> Member Login</h2>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.SuccessMessage != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong><i class="bi bi-check-circle"></i> Success!</strong><br />
+                        @ViewBag.SuccessMessage
+                        @if (ViewBag.RegisteredEmail != null)
+                        {
+                            <br /><small>Email: <strong>@ViewBag.RegisteredEmail</strong></small>
+                        }
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @if (ViewBag.InfoMessage != null)
+                {
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong><i class="bi bi-exclamation-triangle"></i> Notice</strong><br />
+                        @ViewBag.InfoMessage
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                }
+
+                <form asp-action="Login" method="post" id="loginForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    
+                    <!-- reCAPTCHA v3 hidden token field -->
+                    <input type="hidden" id="recaptchaToken" name="recaptchaToken" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" 
+                               class="form-control" 
+                               autofocus
+                               placeholder="your.email@example.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" 
+                               class="form-control" 
+                               placeholder="Enter your password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <div class="form-check">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label"></label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-2">
+                        <a asp-action="ForgotPassword" class="text-decoration-none">
+                            <small>Forgot your password?</small>
+                        </a>
+                    </div>
+                </form>
+
+                <hr />
+
+                <div class="text-center">
+                    <p class="mb-2">Don't have an account?</p>
+                    <a asp-controller="Member" asp-action="Register" class="btn btn-outline-primary">
+                        <i class="bi bi-person-plus"></i> Register Now
+                    </a>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-link">
+                        <i class="bi bi-house"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-4">
+            <h6><i class="bi bi-info-circle"></i> Security Features</h6>
+            <ul class="mb-0">
+                <li>Accounts are locked after 3 failed login attempts within 15 minutes</li>
+                <li>Locked accounts are automatically unlocked after 5 minutes</li>
+                <li>Sessions expire after 15 minutes of inactivity</li>
+                <li>Multiple concurrent logins from different devices are detected and prevented</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Google reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render=@siteKey" 
+            onload="console.log('? reCAPTCHA script loaded successfully');"
+            onerror="console.error('? reCAPTCHA script FAILED to load - check network/adblocker');">
+    </script>
+    
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Debug: Check if script loaded
+        window.addEventListener('load', function() {
+            console.log('Page loaded. Checking reCAPTCHA...');
+            console.log('Site Key:', '@siteKey');
+            console.log('grecaptcha defined?', typeof grecaptcha !== 'undefined');
+            
+            if (typeof grecaptcha !== 'undefined') {
+                console.log('? reCAPTCHA is available!');
+            } else {
+                console.error('? reCAPTCHA NOT loaded. Possible causes:');
+                console.error('   1. Browser extension blocking it (adblocker)');
+                console.error('   2. Network/firewall blocking Google');
+                console.error('   3. Invalid site key');
+                console.error('   4. Script failed to download');
+                console.error('Check Network tab for api.js request status');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('loginForm');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+                
+                // Execute reCAPTCHA v3 (required)
+                if (typeof grecaptcha === 'undefined') {
+                    alert('reCAPTCHA is not available. Please disable any adblocker or privacy extension and reload the page.');
+                    return;
+                }
+
+                console.log('?? Executing reCAPTCHA...');
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('@siteKey', {action: 'login'}).then(function(token) {
+                        console.log('? reCAPTCHA token received:', token.substring(0, 20) + '...');
+                        // Set the token in hidden field
+                        document.getElementById('recaptchaToken').value = token;
+                        
+                        // Submit the form
+                        form.submit();
+                    }).catch(function(error) {
+                        console.error('? reCAPTCHA error:', error);
+                        alert('reCAPTCHA verification failed. Please refresh the page and try again.');
+                    });
+                });
+            });
+        });
+    </script>
+}

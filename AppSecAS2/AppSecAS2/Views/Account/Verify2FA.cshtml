@@ -1,0 +1,179 @@
+@model BookwormsOnline.Models.TwoFactorVerificationViewModel
+@inject Microsoft.Extensions.Options.IOptions<BookwormsOnline.Configuration.ReCaptchaSettings> ReCaptchaSettings
+
+@{
+    ViewData["Title"] = "Two-Factor Authentication";
+    var siteKey = ReCaptchaSettings.Value.SiteKey;
+    var twoFactorType = ViewBag.TwoFactorType as string ?? "Email";
+    var email = ViewBag.Email as string;
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h2 class="mb-0">
+                    <i class="bi bi-shield-lock-fill"></i> Two-Factor Authentication
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle-fill"></i>
+                    @if (twoFactorType == "Email")
+                    {
+                        <strong>Email Verification</strong><br />
+                        <p class="mb-0">A 6-digit verification code has been sent to your email address: <strong>@email</strong></p>
+                        <p class="mb-0 mt-2"><small>The code will expire in 10 minutes.</small></p>
+                    }
+                    else
+                    {
+                        <strong>Authenticator App Verification</strong><br />
+                        <p class="mb-0">Open your authenticator app and enter the 6-digit code.</p>
+                    }
+                </div>
+
+                <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                <form asp-action="Verify2FA" method="post" id="verify2FAForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="TwoFactorType" value="@twoFactorType" />
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <input type="hidden" id="recaptchaToken" name="recaptchaToken" />
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Code" class="form-label">
+                            <i class="bi bi-key-fill"></i> Verification Code
+                        </label>
+                        <input asp-for="Code" 
+                               class="form-control form-control-lg text-center" 
+                               maxlength="10"
+                               autofocus
+                               placeholder="000000"
+                               style="letter-spacing: 10px; font-size: 24px;" />
+                        <span asp-validation-for="Code" class="text-danger"></span>
+                        <small class="form-text text-muted">
+                            Enter the 6-digit code
+                        </small>
+                    </div>
+
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle-fill"></i> Verify Code
+                        </button>
+                    </div>
+                </form>
+
+                @if (twoFactorType == "Email")
+                {
+                    <hr />
+                    <div class="text-center">
+                        <p class="mb-2">Didn't receive the code?</p>
+                        <button type="button" class="btn btn-outline-primary" id="resendBtn">
+                            <i class="bi bi-arrow-clockwise"></i> Resend Code
+                        </button>
+                        <div id="resendMessage" class="mt-2"></div>
+                    </div>
+                }
+
+                <hr />
+                <div class="text-center">
+                    <a asp-action="Login" class="btn btn-link">
+                        <i class="bi bi-arrow-left"></i> Back to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-warning mt-4">
+            <h6><i class="bi bi-exclamation-triangle-fill"></i> Security Notice</h6>
+            <ul class="mb-0">
+                <li>You have 3 attempts to enter the correct code</li>
+                <li>This is an additional security measure to protect your account</li>
+                <li>Never share your verification code with anyone</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Google reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render=@siteKey"></script>
+    
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('verify2FAForm');
+            const codeInput = document.querySelector('input[name="Code"]');
+            const resendBtn = document.getElementById('resendBtn');
+            const resendMessage = document.getElementById('resendMessage');
+
+            // Auto-format code input (numbers only)
+            codeInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/\D/g, '');
+            });
+
+            // Form submission with reCAPTCHA
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+                
+                // Execute reCAPTCHA v3
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('@siteKey', {action: 'verify2fa'}).then(function(token) {
+                        document.getElementById('recaptchaToken').value = token;
+                        form.submit();
+                    }).catch(function(error) {
+                        console.error('reCAPTCHA error:', error);
+                        alert('reCAPTCHA verification failed. Please refresh and try again.');
+                    });
+                });
+            });
+
+            // Resend code button (Email only)
+            if (resendBtn) {
+                resendBtn.addEventListener('click', function() {
+                    resendBtn.disabled = true;
+                    resendBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending...';
+                    
+                    fetch('@Url.Action("Resend2FACode")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            resendMessage.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle"></i> ' + data.message + '</div>';
+                            // Cooldown timer
+                            let countdown = 60;
+                            const timer = setInterval(function() {
+                                countdown--;
+                                resendBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Resend Code (' + countdown + 's)';
+                                if (countdown <= 0) {
+                                    clearInterval(timer);
+                                    resendBtn.disabled = false;
+                                    resendBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Resend Code';
+                                }
+                            }, 1000);
+                        } else {
+                            resendMessage.innerHTML = '<div class="alert alert-danger"><i class="bi bi-x-circle"></i> ' + data.message + '</div>';
+                            resendBtn.disabled = false;
+                            resendBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Resend Code';
+                        }
+                    })
+                    .catch(error => {
+                        resendMessage.innerHTML = '<div class="alert alert-danger"><i class="bi bi-x-circle"></i> Error sending code</div>';
+                        resendBtn.disabled = false;
+                        resendBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Resend Code';
+                    });
+                });
+            }
+        });
+    </script>
+}

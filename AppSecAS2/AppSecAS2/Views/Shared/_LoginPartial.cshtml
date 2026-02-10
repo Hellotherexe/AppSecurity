@@ -1,0 +1,31 @@
+<ul class="navbar-nav">
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-controller="Member" asp-action="Details" asp-route-id="@User.FindFirst("MemberId")?.Value">
+            <i class="bi bi-person-circle"></i> Hello @User.FindFirst("FirstName")?.Value!
+        </a>
+    </li>
+    <li class="nav-item">
+        <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="nav-link btn btn-link text-dark">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-controller="Member" asp-action="Register">
+            <i class="bi bi-person-plus"></i> Register
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+        </a>
+    </li>
+}
+</ul>

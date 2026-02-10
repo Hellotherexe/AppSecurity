@@ -1,0 +1,73 @@
+@using System.Diagnostics
+@{
+    ViewData["Title"] = "500 - Server Error";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="mb-4">
+                <i class="bi bi-x-octagon-fill" style="font-size: 8rem; color: #ffc107;"></i>
+            </div>
+            
+            <h1 class="display-1 fw-bold text-warning">500</h1>
+            <h2 class="mb-4">Internal Server Error</h2>
+            
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">
+                    <i class="bi bi-exclamation-triangle"></i> Something Went Wrong
+                </h4>
+                <p class="mb-0">
+                    We're experiencing technical difficulties. Our team has been notified and is working on a fix.
+                </p>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-tools"></i> What happened?
+                    </h5>
+                    <p class="text-muted">
+                        An unexpected error occurred while processing your request. 
+                        This could be a temporary issue, and trying again might work.
+                    </p>
+                    
+                    <h6 class="mt-3 mb-2">What you can do:</h6>
+                    <ul class="list-unstyled text-start">
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-clockwise text-primary"></i> 
+                            Try refreshing the page
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-clock-history text-primary"></i> 
+                            Wait a few moments and try again
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-house text-primary"></i> 
+                            Go back to the homepage
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-envelope text-primary"></i> 
+                            Contact support if the problem persists
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button onclick="location.reload()" class="btn btn-primary btn-lg">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh Page
+                </button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-house-fill"></i> Go Home
+                </a>
+            </div>
+
+            <div class="mt-4">
+                <small class="text-muted">
+                    Error Code: 500 | Request ID: @Activity.Current?.Id
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

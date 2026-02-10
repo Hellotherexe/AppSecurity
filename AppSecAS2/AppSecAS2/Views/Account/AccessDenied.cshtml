@@ -1,0 +1,73 @@
+@{
+    ViewData["Title"] = "Access Denied - Bookworms Online";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="mb-4">
+                <i class="bi bi-shield-x" style="font-size: 8rem; color: #dc3545;"></i>
+            </div>
+            
+            <h1 class="display-3 fw-bold text-danger">Access Denied</h1>
+            <p class="lead text-muted mb-4">
+                You don't have permission to access this resource.
+            </p>
+
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">
+                    <i class="bi bi-exclamation-triangle"></i> Authorization Required
+                </h4>
+                <p class="mb-0">
+                    This page or resource is restricted. You need proper authorization to view this content.
+                </p>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-question-circle"></i> What can you do?
+                    </h5>
+                    <div class="row text-start">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-arrow-right text-primary"></i> 
+                                    Check if you're logged in
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-arrow-right text-primary"></i> 
+                                    Verify your account permissions
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-arrow-right text-primary"></i> 
+                                    Contact support if needed
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-arrow-right text-primary"></i> 
+                                    Return to the homepage
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                @if (!User.Identity?.IsAuthenticated ?? true)
+                {
+                    <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Log In
+                    </a>
+                }
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-house-fill"></i> Go Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

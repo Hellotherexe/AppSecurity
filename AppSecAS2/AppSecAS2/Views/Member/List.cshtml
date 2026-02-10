@@ -1,0 +1,101 @@
+@model IEnumerable<BookwormsOnline.Models.Member>
+
+@{
+    ViewData["Title"] = "Member List";
+    var maskedCards = ViewBag.MaskedCards as Dictionary<int, string>;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="bi bi-people"></i> @ViewData["Title"]</h2>
+        <hr />
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No members registered yet.
+                <a asp-action="Register" class="alert-link">Register the first member</a>.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i> Total Members: <strong>@Model.Count()</strong>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Credit Card</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in Model)
+                        {
+                            <tr>
+                                <td>@member.MemberId</td>
+                                <td>
+                                    <strong>@member.FirstName @member.LastName</strong>
+                                </td>
+                                <td>
+                                    <a href="mailto:@member.Email">@member.Email</a>
+                                </td>
+                                <td>@member.MobileNo</td>
+                                <td>
+                                    @if (maskedCards != null && maskedCards.ContainsKey(member.MemberId))
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-credit-card"></i>
+                                            @maskedCards[member.MemberId]
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">No card</span>
+                                    }
+                                </td>
+                                <td>@member.CreatedAt.ToString("MM/dd/yyyy")</td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@member.MemberId" 
+                                       class="btn btn-sm btn-primary" title="View Details">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-shield-lock"></i> Security Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Credit Card Encryption:</strong> All credit card numbers are encrypted using AES-256-CBC</li>
+                        <li><strong>Display:</strong> Only the last 4 digits are shown for security</li>
+                        <li><strong>Storage:</strong> Plain text credit card numbers are never stored in the database</li>
+                        <li><strong>Decryption:</strong> Cards are decrypted on the server only when needed for display</li>
+                    </ul>
+                </div>
+            </div>
+        }
+
+        <div class="mt-4">
+            <a asp-action="Register" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Register New Member
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-house"></i> Home
+            </a>
+        </div>
+    </div>
+</div>

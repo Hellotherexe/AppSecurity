@@ -1,0 +1,98 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = Model.ErrorTitle;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-danger text-white">
+                    <h1 class="mb-0">
+                        <i class="bi bi-exclamation-triangle-fill"></i> 
+                        @Model.StatusCode - @Model.ErrorTitle
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">@Model.ErrorTitle</h4>
+                        <p class="mb-0">@Model.ErrorMessage</p>
+                    </div>
+
+                    @if (Model.StatusCode == 404)
+                    {
+                        <div class="mt-4">
+                            <h5>Suggestions:</h5>
+                            <ul>
+                                <li>Check the URL for typos</li>
+                                <li>Use the navigation menu to find what you're looking for</li>
+                                <li>Visit our <a asp-controller="Home" asp-action="Index">home page</a></li>
+                            </ul>
+                        </div>
+                    }
+                    else if (Model.StatusCode == 403)
+                    {
+                        <div class="mt-4">
+                            <h5>What can you do?</h5>
+                            <ul>
+                                <li>Make sure you are <a asp-controller="Account" asp-action="Login">logged in</a></li>
+                                <li>Contact support if you believe this is an error</li>
+                                <li>Return to the <a asp-controller="Home" asp-action="Index">home page</a></li>
+                            </ul>
+                        </div>
+                    }
+                    else if (Model.StatusCode == 401)
+                    {
+                        <div class="mt-4">
+                            <p>Please <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right"></i> Log In
+                            </a> to continue.</p>
+                        </div>
+                    }
+
+                    <div class="mt-4">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-house-fill"></i> Go to Home Page
+                        </a>
+                        <button onclick="history.back()" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Go Back
+                        </button>
+                    </div>
+
+                    @if (Model.ShowRequestId)
+                    {
+                        <div class="mt-4">
+                            <small class="text-muted">
+                                Request ID: <code>@Model.RequestId</code>
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <p class="text-muted">
+                    Need help? <a asp-controller="Home" asp-action="Privacy">Contact Support</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .card-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    code {
+        background-color: #f8f9fa;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+</style>

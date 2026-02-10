@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to BookwormsOnline</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    
+    <div class="mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-person-plus fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3">Register</h5>
+                        <p class="card-text">Create a new member account</p>
+                        <a asp-controller="Member" asp-action="Register" class="btn btn-primary">
+                            Register Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people fs-1 text-success"></i>
+                        <h5 class="card-title mt-3">Members</h5>
+                        <p class="card-text">View all registered members</p>
+                        <a asp-controller="Member" asp-action="List" class="btn btn-success">
+                            View List
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-shield-check fs-1 text-secondary"></i>
+                        <h5 class="card-title mt-3">Password Demo</h5>
+                        <p class="card-text">Test password validation</p>
+                        <a asp-controller="Member" asp-action="PasswordDemo" class="btn btn-secondary">
+                            Try Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-lock-fill fs-1 text-info"></i>
+                        <h5 class="card-title mt-3">Encryption Demo</h5>
+                        <p class="card-text">Test AES encryption</p>
+                        <a asp-controller="EncryptionDemo" asp-action="Index" class="btn btn-info">
+                            View Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

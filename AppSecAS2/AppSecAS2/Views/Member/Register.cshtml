@@ -1,0 +1,387 @@
+@model BookwormsOnline.Models.Member
+@inject Microsoft.Extensions.Options.IOptions<BookwormsOnline.Configuration.ReCaptchaSettings> ReCaptchaSettings
+
+@{
+    ViewData["Title"] = "Bookworms Online - Member Registration";
+    var siteKey = ReCaptchaSettings.Value.SiteKey;
+}
+
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0"><i class="bi bi-person-plus-fill"></i> @ViewData["Title"]</h2>
+            </div>
+            <div class="card-body">
+                <!-- Validation Summary at the top -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                }
+
+                <form asp-action="Register" method="post" enctype="multipart/form-data" id="registrationForm">
+                    @Html.AntiForgeryToken()
+                    
+                    <!-- reCAPTCHA v3 hidden token field -->
+                    <input type="hidden" id="recaptchaToken" name="recaptchaToken" />
+                    
+                    <!-- Personal Information Section -->
+                    <fieldset class="mb-4">
+                        <legend class="h5 border-bottom pb-2 mb-3">
+                            <i class="bi bi-person"></i> Personal Information
+                        </legend>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="FirstName" class="form-label"></label>
+                                    <input asp-for="FirstName" 
+                                           class="form-control" 
+                                           type="text"
+                                           required
+                                           maxlength="50"
+                                           placeholder="Enter your first name" />
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="LastName" class="form-label"></label>
+                                    <input asp-for="LastName" 
+                                           class="form-control"
+                                           type="text"
+                                           required
+                                           maxlength="50"
+                                           placeholder="Enter your last name" />
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" 
+                                   class="form-control" 
+                                   type="email"
+                                   required
+                                   maxlength="255"
+                                   placeholder="your.email@example.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="MobileNo" class="form-label"></label>
+                            <input asp-for="MobileNo" 
+                                   class="form-control" 
+                                   type="tel"
+                                   required
+                                   pattern="[89]\d{7}"
+                                   placeholder="e.g., 91234567"
+                                   title="Singapore mobile number starting with 8 or 9, followed by 7 digits" />
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle"></i> Singapore mobile number (8 or 9 followed by 7 digits)
+                            </small>
+                            <span asp-validation-for="MobileNo" class="text-danger"></span>
+                        </div>
+                    </fieldset>
+
+                    <!-- Security Section -->
+                    <fieldset class="mb-4">
+                        <legend class="h5 border-bottom pb-2 mb-3">
+                            <i class="bi bi-shield-lock"></i> Security
+                        </legend>
+
+                        <div class="form-group mb-3">
+                            <label for="Password" class="form-label">Password</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="Password" 
+                                   name="Password" 
+                                   data-password-validation
+                                   required
+                                   minlength="12"
+                                   autocomplete="new-password"
+                                   placeholder="Enter a strong password" />
+                            <span asp-validation-for="PasswordHash" class="text-danger"></span>
+                            @* Password validation feedback will be inserted here by JavaScript *@
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="ConfirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="ConfirmPassword" 
+                                   name="ConfirmPassword" 
+                                   required
+                                   minlength="12"
+                                   autocomplete="new-password"
+                                   placeholder="Re-enter your password" />
+                            <span class="text-danger" id="confirmPasswordError"></span>
+                        </div>
+                    </fieldset>
+
+                    <!-- Address Information Section -->
+                    <fieldset class="mb-4">
+                        <legend class="h5 border-bottom pb-2 mb-3">
+                            <i class="bi bi-geo-alt"></i> Address Information
+                        </legend>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="BillingAddress" class="form-label"></label>
+                            <textarea asp-for="BillingAddress" 
+                                      class="form-control" 
+                                      rows="3"
+                                      required
+                                      maxlength="255"
+                                      placeholder="Enter your billing address"></textarea>
+                            <span asp-validation-for="BillingAddress" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="ShippingAddress" class="form-label"></label>
+                            <textarea asp-for="ShippingAddress" 
+                                      class="form-control" 
+                                      rows="3"
+                                      required
+                                      maxlength="500"
+                                      placeholder="Enter your shipping address"></textarea>
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle"></i> Can include special characters
+                            </small>
+                            <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                        </div>
+                    </fieldset>
+
+                    <!-- Payment Information Section -->
+                    <fieldset class="mb-4">
+                        <legend class="h5 border-bottom pb-2 mb-3">
+                            <i class="bi bi-credit-card"></i> Payment Information
+                        </legend>
+
+                        <div class="form-group mb-3">
+                            <label for="CreditCard" class="form-label">Credit Card Number</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="CreditCard" 
+                                   name="CreditCard"
+                                   required
+                                   maxlength="23" 
+                                   placeholder="XXXX-XXXX-XXXX-XXXX"
+                                   title="Credit card number (13-19 digits)"
+                                   inputmode="numeric" />
+                            <small class="form-text text-muted">
+                                <i class="bi bi-shield-lock"></i> Your credit card will be encrypted before storage
+                            </small>
+                            <span asp-validation-for="CreditCardEncrypted" class="text-danger"></span>
+                            @* Server-side validation for the credit card input uses ModelState key "CreditCard" (not a model property). Render any server error here. *@
+                            @if (ViewData.ModelState.ContainsKey("CreditCard") && ViewData.ModelState["CreditCard"].Errors.Count > 0)
+                            {
+                                <span class="text-danger">@ViewData.ModelState["CreditCard"].Errors[0].ErrorMessage</span>
+                            }
+                            <div class="invalid-feedback" id="creditCardError">Credit card number must be 13-19 digits.</div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Profile Photo Section -->
+                    <fieldset class="mb-4">
+                        <legend class="h5 border-bottom pb-2 mb-3">
+                            <i class="bi bi-camera"></i> Profile Photo
+                        </legend>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="PhotoFileName" class="form-label">Upload Photo</label>
+                            <input type="file" 
+                                   class="form-control" 
+                                   id="Photo" 
+                                   name="Photo"
+                                   required
+                                   accept=".jpg,.jpeg,image/jpeg" />
+                            <small class="form-text text-muted">
+                                <i class="bi bi-file-earmark-image"></i> JPG files only (maximum 5MB)
+                            </small>
+                            <span asp-validation-for="PhotoFileName" class="text-danger"></span>
+                        </div>
+
+                        <div id="photoPreview" class="mt-2" style="display: none;">
+                            <img id="previewImage" src="#" alt="Photo Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;" />
+                        </div>
+                    </fieldset>
+
+                    <!-- Form Actions -->
+                    <div class="form-group d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Register
+                        </button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary btn-lg">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Information -->
+        <div class="alert alert-info mt-4">
+            <h5><i class="bi bi-info-circle"></i> Registration Information</h5>
+            <ul class="mb-0">
+                <li>All fields are required</li>
+                <li>Password must be at least 12 characters with uppercase, lowercase, digit, and special character</li>
+                <li>Credit card information is encrypted for security</li>
+                <li>Photo must be in JPG format</li>
+                <li>Mobile number must be a valid Singapore number</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Google reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render=@siteKey"></script>
+    
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/password-validation.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Password confirmation validation
+            const password = document.getElementById('Password');
+            const confirmPassword = document.getElementById('ConfirmPassword');
+            const errorSpan = document.getElementById('confirmPasswordError');
+
+            function validatePasswordMatch() {
+                if (confirmPassword.value && password.value !== confirmPassword.value) {
+                    errorSpan.textContent = 'Passwords do not match.';
+                    confirmPassword.setCustomValidity('Passwords do not match.');
+                } else {
+                    errorSpan.textContent = '';
+                    confirmPassword.setCustomValidity('');
+                }
+            }
+
+            password.addEventListener('input', validatePasswordMatch);
+            confirmPassword.addEventListener('input', validatePasswordMatch);
+
+            // Photo preview
+            const photoInput = document.getElementById('Photo');
+            const photoPreview = document.getElementById('photoPreview');
+            const previewImage = document.getElementById('previewImage');
+
+            photoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                
+                if (file) {
+                    // Validate file type
+                    if (!file.type.match('image/jpeg')) {
+                        alert('Please select a JPG file only.');
+                        photoInput.value = '';
+                        photoPreview.style.display = 'none';
+                        return;
+                    }
+
+                    // Validate file size (5MB max)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File size must be less than 5MB.');
+                        photoInput.value = '';
+                        photoPreview.style.display = 'none';
+                        return;
+                    }
+
+                    // Show preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        photoPreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    photoPreview.style.display = 'none';
+                }
+            });
+
+            // Credit card formatting and validation
+            const creditCardInput = document.getElementById('CreditCard');
+            const creditCardError = document.getElementById('creditCardError');
+            
+            // Luhn checksum validation (client-side)
+            function luhnCheck(num) {
+                let sum = 0;
+                let alt = false;
+                for (let i = num.length - 1; i >= 0; i--) {
+                    let n = parseInt(num.charAt(i), 10);
+                    if (alt) {
+                        n *= 2;
+                        if (n > 9) n -= 9;
+                    }
+                    sum += n;
+                    alt = !alt;
+                }
+                return (sum % 10) === 0;
+            }
+
+            function validateCreditCardField() {
+                const digits = creditCardInput.value.replace(/\D/g, '');
+                const lengthValid = digits.length >= 13 && digits.length <= 19;
+                const luhnValid = lengthValid && luhnCheck(digits);
+
+                if (lengthValid && luhnValid) {
+                    creditCardInput.setCustomValidity('');
+                    creditCardInput.classList.remove('is-invalid');
+                    creditCardInput.classList.add('is-valid');
+                    creditCardError.textContent = '';
+                } else {
+                    creditCardInput.setCustomValidity('Credit card number is invalid.');
+                    creditCardInput.classList.remove('is-valid');
+                    creditCardInput.classList.add('is-invalid');
+                    if (!lengthValid) {
+                        creditCardError.textContent = 'Credit card number must be 13-19 digits.';
+                    } else {
+                        creditCardError.textContent = 'Credit card number failed checksum (invalid card number).';
+                    }
+                }
+            }
+
+            creditCardInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join('-') || value;
+                e.target.value = formattedValue;
+                validateCreditCardField();
+            });
+            creditCardInput.addEventListener('blur', validateCreditCardField);
+
+            // Form submission with reCAPTCHA v3
+            const form = document.getElementById('registrationForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+                
+                // Execute reCAPTCHA v3 (required)
+                if (typeof grecaptcha === 'undefined') {
+                    alert('reCAPTCHA is not available. Please disable any adblocker or privacy extension and reload the page.');
+                    return;
+                }
+
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('@siteKey', {action: 'register'}).then(function(token) {
+                        // Set the token in hidden field
+                        document.getElementById('recaptchaToken').value = token;
+                        // Ensure credit card input contains only digits before submitting
+                        const ccInput = document.getElementById('CreditCard');
+                        if (ccInput) {
+                            ccInput.value = ccInput.value.replace(/\D/g, '');
+                        }
+
+                        // Submit the form
+                        form.submit();
+                    }).catch(function(error) {
+                        console.error('reCAPTCHA error:', error);
+                        alert('reCAPTCHA verification failed. Please refresh the page and try again.');
+                    });
+                });
+            });
+        });
+    </script>
+}
+

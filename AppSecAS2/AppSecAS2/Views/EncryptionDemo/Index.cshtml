@@ -1,0 +1,197 @@
+@{
+    ViewData["Title"] = "Encryption Service Demo";
+}
+
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <h2><i class="bi bi-lock-fill"></i> @ViewData["Title"]</h2>
+        <p class="lead">Test AES-256-CBC encryption and decryption with the EncryptionService.</p>
+        <hr />
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error:</strong> @ViewBag.Error
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="row">
+            <!-- Encrypt Text -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-shield-lock"></i> Encrypt Text</h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Encrypt" method="post">
+                            <div class="mb-3">
+                                <label for="plaintext" class="form-label">Plain Text</label>
+                                <textarea class="form-control" id="plaintext" name="plaintext" rows="4" 
+                                          placeholder="Enter text to encrypt...">@ViewBag.Plaintext</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-lock"></i> Encrypt
+                            </button>
+                        </form>
+
+                        @if (ViewBag.Encrypted != null)
+                        {
+                            <div class="mt-3">
+                                <div class="alert alert-success">
+                                    <strong>Encrypted (Base64):</strong>
+                                    <div class="mt-2">
+                                        <code class="d-block p-2 bg-light border rounded" style="word-wrap: break-word;">@ViewBag.Encrypted</code>
+                                    </div>
+                                    <small class="text-muted">Length: @ViewBag.EncryptedLength characters</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decrypt Text -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-shield-unlock"></i> Decrypt Text</h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Decrypt" method="post">
+                            <div class="mb-3">
+                                <label for="ciphertext" class="form-label">Cipher Text (Base64)</label>
+                                <textarea class="form-control" id="ciphertext" name="ciphertext" rows="4" 
+                                          placeholder="Enter Base64 encrypted text...">@ViewBag.Ciphertext</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-unlock"></i> Decrypt
+                            </button>
+                        </form>
+
+                        @if (ViewBag.Decrypted != null)
+                        {
+                            <div class="mt-3">
+                                <div class="alert alert-info">
+                                    <strong>Decrypted Text:</strong>
+                                    <div class="mt-2">
+                                        <div class="p-2 bg-light border rounded">@ViewBag.Decrypted</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Credit Card Encryption -->
+        <div class="row">
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="bi bi-credit-card"></i> Credit Card Encryption</h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="EncryptCreditCard" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="creditCardNumber" class="form-label">Credit Card Number</label>
+                                        <input type="text" class="form-control" id="creditCardNumber" 
+                                               name="creditCardNumber" placeholder="1234-5678-9012-3456"
+                                               value="@ViewBag.CreditCardOriginal" />
+                                        <small class="form-text text-muted">Enter a test credit card number (e.g., 1234567890123456)</small>
+                                    </div>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="bi bi-lock"></i> Encrypt & Mask
+                                    </button>
+                                </div>
+
+                                @if (ViewBag.CreditCardEncrypted != null)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label"><strong>Encrypted Value:</strong></label>
+                                            <code class="d-block p-2 bg-light border rounded" style="word-wrap: break-word; font-size: 0.85rem;">
+                                                @ViewBag.CreditCardEncrypted
+                                            </code>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label"><strong>Masked Display:</strong></label>
+                                            <div class="p-2 bg-light border rounded">
+                                                <span class="badge bg-secondary">@ViewBag.CreditCardMasked</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Panel -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Encryption Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Algorithm:</strong> AES-256-CBC
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Key Size:</strong> 256 bits (32 bytes)
+                            </li>
+                            <li class="list-group-item">
+                                <strong>IV Size:</strong> 128 bits (16 bytes)
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Padding:</strong> PKCS7
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Output Format:</strong> Base64-encoded string
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Configuration:</strong> Loaded from appsettings.json using IOptions
+                            </li>
+                        </ul>
+
+                        <div class="alert alert-warning mt-3">
+                            <h6><i class="bi bi-exclamation-triangle"></i> Production Note:</h6>
+                            <p class="mb-0">
+                                In production, <strong>never</strong> store encryption keys in appsettings.json. 
+                                Use Azure Key Vault, AWS Secrets Manager, or similar secure key management services.
+                                Consider using unique IVs for each encryption operation for enhanced security.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-house"></i> Back to Home
+            </a>
+            <a asp-controller="Member" asp-action="Register" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Go to Registration
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        window.setTimeout(function() {
+            $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove();
+            });
+        }, 5000);
+    </script>
+}

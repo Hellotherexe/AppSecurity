@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "403 - Access Denied";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="mb-4">
+                <i class="bi bi-shield-lock-fill" style="font-size: 8rem; color: #dc3545;"></i>
+            </div>
+            
+            <h1 class="display-1 fw-bold text-danger">403</h1>
+            <h2 class="mb-4">Access Denied</h2>
+            
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">
+                    <i class="bi bi-exclamation-triangle"></i> Permission Required
+                </h4>
+                <p class="mb-0">
+                    You don't have permission to access this resource. This area may be restricted to authorized users only.
+                </p>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-question-circle"></i> Why am I seeing this?
+                    </h5>
+                    <ul class="list-unstyled text-start">
+                        <li class="mb-2">
+                            <i class="bi bi-x-circle text-danger"></i> 
+                            You may not be logged in
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-x-circle text-danger"></i> 
+                            Your account may not have the required permissions
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-x-circle text-danger"></i> 
+                            This resource may be for administrators only
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-x-circle text-danger"></i> 
+                            Your session may have expired
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-3">
+                @if (!User.Identity?.IsAuthenticated ?? true)
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right"></i> Log In
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+                        <i class="bi bi-house-fill"></i> Back to Home
+                    </a>
+                }
+                <button onclick="history.back()" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-arrow-left"></i> Go Back
+                </button>
+            </div>
+
+            <div class="text-muted">
+                <small>
+                    Need help? Contact your administrator or support team.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

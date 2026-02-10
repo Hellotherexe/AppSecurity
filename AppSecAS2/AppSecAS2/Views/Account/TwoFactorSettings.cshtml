@@ -1,0 +1,129 @@
+@model BookwormsOnline.Models.TwoFactorSettingsViewModel
+
+@{
+    ViewData["Title"] = "Two-Factor Authentication Settings";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2><i class="bi bi-shield-lock"></i> Two-Factor Authentication Settings</h2>
+        <hr />
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-shield-check"></i> Current 2FA Status</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.TwoFactorEnabled)
+                {
+                    <div class="alert alert-success">
+                        <h5><i class="bi bi-check-circle-fill"></i> Two-Factor Authentication is ENABLED</h5>
+                        <p class="mb-0">
+                            <strong>Method:</strong> @Model.TwoFactorType 
+                            @if (Model.TwoFactorType == "Email")
+                            {
+                                <span class="badge bg-info">Email OTP</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-primary">Authenticator App</span>
+                            }
+                        </p>
+                    </div>
+
+                    @if (Model.TwoFactorType == "TOTP" && !string.IsNullOrEmpty(Model.TotpSecretKey))
+                    {
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-key"></i> Your TOTP Secret Key</h6>
+                            <code class="bg-light p-2 d-block">@Model.TotpSecretKey</code>
+                            <small class="text-muted">Use this key in your authenticator app (Google Authenticator, Authy, etc.)</small>
+                        </div>
+                    }
+
+                    <form asp-action="DisableTwoFactor" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to disable Two-Factor Authentication?');">
+                            <i class="bi bi-shield-x"></i> Disable 2FA
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <h5><i class="bi bi-exclamation-triangle-fill"></i> Two-Factor Authentication is DISABLED</h5>
+                        <p class="mb-0">Your account is less secure without 2FA. Enable it to protect your account.</p>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-envelope"></i> Email OTP</h5>
+                                    <p class="card-text">Receive a one-time code via email each time you log in.</p>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check text-success"></i> Simple setup</li>
+                                        <li><i class="bi bi-check text-success"></i> No app required</li>
+                                        <li><i class="bi bi-check text-success"></i> Works on any device</li>
+                                    </ul>
+                                    <form asp-action="EnableTwoFactor" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="twoFactorType" value="Email" />
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bi bi-envelope-check"></i> Enable Email 2FA
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-phone"></i> Authenticator App (TOTP)</h5>
+                                    <p class="card-text">Use an authenticator app like Google Authenticator or Authy.</p>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check text-success"></i> Works offline</li>
+                                        <li><i class="bi bi-check text-success"></i> More secure</li>
+                                        <li><i class="bi bi-check text-success"></i> Time-based codes</li>
+                                    </ul>
+                                    <form asp-action="EnableTwoFactor" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="twoFactorType" value="TOTP" />
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="bi bi-qr-code"></i> Enable TOTP 2FA
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-4">
+            <h6><i class="bi bi-info-circle"></i> What is Two-Factor Authentication?</h6>
+            <p class="mb-2">
+                Two-Factor Authentication (2FA) adds an extra layer of security to your account. 
+                Even if someone knows your password, they won't be able to log in without the second factor.
+            </p>
+            <p class="mb-0">
+                <strong>Recommended:</strong> Enable 2FA to protect your account from unauthorized access.
+            </p>
+        </div>
+
+        <div class="mt-4">
+            <a asp-controller="Member" asp-action="Details" asp-route-id="@User.FindFirst("MemberId")?.Value" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Profile
+            </a>
+        </div>
+    </div>
+</div>

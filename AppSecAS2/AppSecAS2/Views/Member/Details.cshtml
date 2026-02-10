@@ -1,0 +1,155 @@
+@model BookwormsOnline.Models.Member
+
+@{
+    ViewData["Title"] = "Member Details";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2><i class="bi bi-person-badge"></i> Member Details</h2>
+        <hr />
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (ViewBag.DecryptionError != null)
+        {
+            <div class="alert alert-warning">
+                <strong>Warning:</strong> Unable to decrypt credit card information.
+            </div>
+        }
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Member ID:</dt>
+                            <dd class="col-sm-8">@Model.MemberId</dd>
+
+                            <dt class="col-sm-4">First Name:</dt>
+                            <dd class="col-sm-8">@Model.FirstName</dd>
+
+                            <dt class="col-sm-4">Last Name:</dt>
+                            <dd class="col-sm-8">@Model.LastName</dd>
+
+                            <dt class="col-sm-4">Email:</dt>
+                            <dd class="col-sm-8">@Model.Email</dd>
+
+                            <dt class="col-sm-4">Mobile:</dt>
+                            <dd class="col-sm-8">@Model.MobileNo</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        @if (!string.IsNullOrEmpty(Model.PhotoFileName))
+                        {
+                            <div class="text-center">
+                                <img src="~/uploads/photos/@Model.PhotoFileName" 
+                                     alt="@Model.FirstName @Model.LastName" 
+                                     class="img-thumbnail" 
+                                     style="max-width: 200px; max-height: 200px;" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Address Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Billing Address:</dt>
+                    <dd class="col-sm-9">@Model.BillingAddress</dd>
+
+                    <dt class="col-sm-3">Shipping Address:</dt>
+                    <dd class="col-sm-9">@Model.ShippingAddress</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-credit-card"></i> Payment Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Credit Card:</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-secondary fs-6">@ViewBag.MaskedCreditCard</span>
+                        <br />
+                        <small class="text-muted">
+                            <i class="bi bi-shield-lock"></i> Credit card information is encrypted and secure
+                        </small>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Account Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Created At:</dt>
+                    <dd class="col-sm-9">@Model.CreatedAt.ToString("MMMM dd, yyyy 'at' hh:mm tt") UTC</dd>
+
+                    <dt class="col-sm-3">Last Login:</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.LastLoginAt.HasValue)
+                        {
+                            @Model.LastLoginAt.Value.ToString("MMMM dd, yyyy 'at' hh:mm tt")
+                            <text> UTC</text>
+                        }
+                        else
+                        {
+                            <em>Never</em>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a asp-controller="Account" asp-action="TwoFactorSettings" class="btn btn-success">
+                <i class="bi bi-shield-lock"></i> 2FA Settings
+            </a>
+            <a asp-controller="Account" asp-action="ChangePassword" class="btn btn-primary">
+                <i class="bi bi-key-fill"></i> Change Password
+            </a>
+            <a asp-action="List" class="btn btn-secondary">
+                <i class="bi bi-list"></i> Back to List
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-house"></i> Home
+            </a>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </button>
+            </form>
+        </div>
+
+        <div class="alert alert-info mt-4">
+            <h6><i class="bi bi-info-circle"></i> Security Notes:</h6>
+            <ul class="mb-0">
+                <li>Credit card numbers are encrypted using AES-256-CBC encryption</li>
+                <li>Only the last 4 digits are displayed for security</li>
+                <li>Full credit card numbers are never stored in plain text</li>
+                <li>Passwords are hashed and cannot be retrieved</li>
+            </ul>
+        </div>
+    </div>
+</div>

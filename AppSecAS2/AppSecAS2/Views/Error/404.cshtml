@@ -1,0 +1,89 @@
+@using System.Diagnostics
+@{
+    ViewData["Title"] = "404 - Page Not Found";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="mb-4">
+                <i class="bi bi-search" style="font-size: 8rem; color: #6c757d;"></i>
+            </div>
+            
+            <h1 class="display-1 fw-bold text-primary">404</h1>
+            <h2 class="mb-4">Oops! Page Not Found</h2>
+            
+            <p class="lead text-muted mb-4">
+                The page you're looking for seems to have wandered off the shelf. 
+                It might have been moved, deleted, or never existed in the first place.
+            </p>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-lightbulb"></i> Here's what you can do:
+                    </h5>
+                    <div class="row text-start">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success"></i> 
+                                    Check the URL for typos
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success"></i> 
+                                    Use the search feature
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success"></i> 
+                                    Browse our catalog
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success"></i> 
+                                    Go back to the homepage
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+                    <i class="bi bi-house-fill"></i> Back to Home
+                </a>
+                <button onclick="history.back()" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-arrow-left"></i> Go Back
+                </button>
+            </div>
+
+            <div class="mt-4">
+                <small class="text-muted">
+                    Error Code: 404 | Request ID: @Activity.Current?.Id
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Add some fun animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const icon = document.querySelector('.bi-search');
+            setInterval(() => {
+                icon.style.transform = 'rotate(15deg)';
+                setTimeout(() => {
+                    icon.style.transform = 'rotate(-15deg)';
+                }, 200);
+                setTimeout(() => {
+                    icon.style.transform = 'rotate(0deg)';
+                }, 400);
+            }, 3000);
+        });
+    </script>
+}
