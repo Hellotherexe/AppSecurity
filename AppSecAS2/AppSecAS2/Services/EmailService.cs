@@ -64,13 +64,11 @@ public class EmailService : IEmailService
             // Disconnect
             await smtp.DisconnectAsync(true);
 
-            var sanitizedTo = to?.Replace("\r", string.Empty).Replace("\n", string.Empty);
-            _logger.LogInformation("Email sent successfully to: {To}", sanitizedTo);
+            _logger.LogInformation("Email sent successfully.");
         }
         catch (Exception ex)
         {
-            var sanitizedTo = to?.Replace("\r", string.Empty).Replace("\n", string.Empty);
-            _logger.LogError(ex, "Failed to send email to: {To}", sanitizedTo);
+            _logger.LogError(ex, "Failed to send email.");
             throw;
         }
     }
