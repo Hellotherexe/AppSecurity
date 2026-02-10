@@ -592,7 +592,7 @@ public class AccountController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error resetting password with token: {Token}", model.Token);
+            _logger.LogError(ex, "Error resetting password with token: {Token}", model.Token?.Replace("\r", "").Replace("\n", ""));
             ModelState.AddModelError("", "An error occurred while resetting your password. Please try again.");
             return View(model);
         }
