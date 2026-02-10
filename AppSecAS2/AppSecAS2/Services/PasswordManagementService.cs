@@ -162,7 +162,8 @@ public class PasswordManagementService
         if (member == null)
         {
             // Don't reveal if email exists - return generic message
-            _logger.LogWarning("Password reset requested for non-existent email: {Email}", email);
+            var safeEmail = email.Replace("\r", string.Empty).Replace("\n", string.Empty);
+            _logger.LogWarning("Password reset requested for non-existent email: {Email}", safeEmail);
             throw new InvalidOperationException("Email not found");
         }
 
