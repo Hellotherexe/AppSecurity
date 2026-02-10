@@ -43,6 +43,7 @@ public class EncryptionDemoController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Decrypt(string ciphertext)
     {
         if (string.IsNullOrEmpty(ciphertext))
