@@ -19,6 +19,7 @@ public class EncryptionDemoController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Encrypt(string plaintext)
     {
         if (string.IsNullOrEmpty(plaintext))
