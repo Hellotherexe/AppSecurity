@@ -204,7 +204,8 @@ public class PasswordManagementService
 
         if (resetToken == null)
         {
-            _logger.LogWarning("Invalid password reset token attempted: {Token}", token);
+            var safeToken = token?.Replace("\r", string.Empty).Replace("\n", string.Empty);
+            _logger.LogWarning("Invalid password reset token attempted: {Token}", safeToken);
             return new PasswordResetResult
             {
                 Success = false,
