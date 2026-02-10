@@ -1094,7 +1094,9 @@ $.extend( $.validator, {
 
 			// Always apply ignore filter, but only when we have a DOM element.
 			if ( element && element.nodeType === 1 ) {
-				return $( element ).not( this.settings.ignore )[ 0 ];
+				// Use the current form context and filter by the specific element,
+				// to avoid passing potentially unsafe values directly into jQuery().
+				return $( this.currentForm ).find( "*" ).filter( element ).not( this.settings.ignore )[ 0 ];
 			}
 
 			return undefined;
