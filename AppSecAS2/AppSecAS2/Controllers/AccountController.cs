@@ -505,7 +505,8 @@ public class AccountController : Controller
             // Send email
             await _emailService.SendPasswordResetEmailAsync(email, resetUrl!);
 
-            _logger.LogInformation("Password reset email sent to: {Email}", email);
+            var sanitizedEmail = email?.Replace("\r", string.Empty).Replace("\n", string.Empty);
+            _logger.LogInformation("Password reset email sent to: {Email}", sanitizedEmail);
             _logger.LogWarning("PASSWORD RESET URL (TESTING ONLY): {ResetUrl}", resetUrl);
 
             TempData["SuccessMessage"] = "If an account with that email exists, a password reset link has been sent.";
@@ -518,7 +519,8 @@ public class AccountController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("Password reset failed for email: {Email}. Error: {Error}", email, ex.Message);
+            var sanitizedEmail = email?.Replace("\r", string.Empty).Replace("\n", string.Empty);
+            _logger.LogWarning("Password reset failed for email: {Email}. Error: {Error}", sanitizedEmail, ex.Message);
             // Don't reveal if email exists - show success anyway
             TempData["SuccessMessage"] = "If an account with that email exists, a password reset link has been sent.";
             return RedirectToAction("ForgotPasswordConfirmation");
