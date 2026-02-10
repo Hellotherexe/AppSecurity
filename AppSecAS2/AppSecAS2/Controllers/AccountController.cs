@@ -753,9 +753,16 @@ public class AccountController : Controller
         }
 
         await _context.SaveChangesAsync();
-        await _auditLogService.LogAsync(memberId, "2FAEnabled", $"Type: {twoFactorType}");
 
-        _logger.LogInformation("2FA enabled for MemberId: {MemberId}, Type: {Type}", memberId, twoFactorType);
+        // Sanitize user-provided twoFactorType before logging to prevent log forging
+        var safeTwoFactorType = (twoFactorType ?? string.Empty)
+            .Replace(Environment.NewLine, string.Empty)
+            .Replace("\r", string.Empty)
+            .Replace("\n", string.Empty);
+
+        await _auditLogService.LogAsync(memberId, "2FAEnabled", $"Type: {safeTwoFactorType}");
+
+        _logger.LogInformation("2FA enabled for MemberId: {MemberId}, Type: {Type}", memberId, safeTwoFactorType);
 
         TempData["SuccessMessage"] = $"Two-Factor Authentication ({twoFactorType}) has been enabled successfully.";
         return RedirectToAction("TwoFactorSettings");
