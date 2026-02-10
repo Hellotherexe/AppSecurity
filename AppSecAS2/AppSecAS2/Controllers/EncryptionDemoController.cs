@@ -66,6 +66,7 @@ public class EncryptionDemoController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult EncryptCreditCard(string creditCardNumber)
     {
         if (string.IsNullOrEmpty(creditCardNumber))
