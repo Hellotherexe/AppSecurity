@@ -510,9 +510,9 @@ public class AccountController : Controller
 
             TempData["SuccessMessage"] = "If an account with that email exists, a password reset link has been sent.";
             
-            // TESTING ONLY - Show link on confirmation page
-            TempData["ResetUrl"] = resetUrl;
-            
+            // Do NOT expose reset URL in UI. Keep it only in logs for development.
+            _logger.LogDebug("Password reset URL (development only): {ResetUrl}", resetUrl);
+
             return RedirectToAction("ForgotPasswordConfirmation");
         }
         catch (Exception ex)

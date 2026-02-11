@@ -21,7 +21,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 // Configure session with 15-minute idle timeout
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(15);
+    options.IdleTimeout = TimeSpan.FromMinutes(1);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -100,10 +100,12 @@ app.UseRouting();
 app.UseSession();
 
 app.UseAuthentication();
-app.UseAuthorization();
 
 // Add custom middleware for session validation (multiple login detection)
+// Run after authentication so User is populated, and before authorization
 app.UseSessionValidation();
+
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",

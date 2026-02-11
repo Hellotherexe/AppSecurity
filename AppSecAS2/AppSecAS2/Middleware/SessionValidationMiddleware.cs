@@ -32,35 +32,28 @@ public class SessionValidationMiddleware
                 // Get current session ID from HttpContext.Session
                 var currentSessionId = context.Session.GetString("SessionId");
 
-                if (!string.IsNullOrEmpty(currentSessionId))
+                // Get member's stored session ID from database
+                var member = await dbContext.Members
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(m => m.MemberId == memberId);
+
+                // If session ID missing (expired) OR member not found OR stored session differs -> sign out
+                if (string.IsNullOrEmpty(currentSessionId) || member == null || member.CurrentSessionId != currentSessionId)
                 {
-                    // Get member's stored session ID from database
-                    var member = await dbContext.Members
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(m => m.MemberId == memberId);
+                    _logger.LogWarning(
+                        "Session invalid for MemberId: {MemberId}. SessionId from session: {SessionId}, stored: {Stored}",
+                        memberId, currentSessionId ?? "<null>", member?.CurrentSessionId ?? "<null>");
 
-                    if (member != null)
-                    {
-                        // Compare session IDs
-                        if (member.CurrentSessionId != currentSessionId)
-                        {
-                            _logger.LogWarning(
-                                "Multiple login detected for MemberId: {MemberId}. " +
-                                "Expected: {Expected}, Got: {Actual}",
-                                memberId, member.CurrentSessionId, currentSessionId);
+                    // Sign out the user
+                    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-                            // Sign out the user
-                            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                            
-                            // Clear session
-                            context.Session.Clear();
+                    // Clear session
+                    context.Session.Clear();
 
-                            // Redirect to login with message
-                            context.Response.Redirect(
-                                "/Account/Login?message=Your account has been logged in from another device or browser.");
-                            return;
-                        }
-                    }
+                    // Redirect to login with message
+                    context.Response.Redirect(
+                        "/Account/Login?message=Session expired or logged in from another device.");
+                    return;
                 }
             }
         }
